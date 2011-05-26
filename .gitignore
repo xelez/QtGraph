@@ -1,0 +1,5 @@
+*.o
+qtgraph
+Makefile
+moc_*
+ui_*
