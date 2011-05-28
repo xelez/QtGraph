@@ -18,9 +18,14 @@ QtGraph::QtGraph(QWidget *parent) :
     gridPen  = QPen(QBrush(Qt::lightGray), 0);
     funcPen  = QPen(QBrush(Qt::blue), 1.5, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin);
 
+    //Set up color pickers
+    ui->cpPlot->setColor(Qt::blue);
+    ui->cpGrid->setColor(Qt::lightGray);
+    ui->cpAxes->setColor(Qt::black);
+    ui->cpBackground->setColor(Qt::white);
+
     //Set scene
     ui->graphView->setScene(&scene);
-
 }
 
 QtGraph::~QtGraph()
@@ -68,7 +73,11 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
     scene->setSceneRect(0, 0, width, height);
 
     imgPlot = QImage(width, height, QImage::Format_RGB32);
-    imgPlot.fill(QColor(Qt::white).rgb());
+    imgPlot.fill(ui->cpBackground->color().rgb());
+
+    gridPen.setColor(ui->cpGrid->color());
+    coordPen.setColor(ui->cpAxes->color());
+    funcPen.setColor(ui->cpPlot->color());
 
     QPainter painter;
     painter.begin(&imgPlot);

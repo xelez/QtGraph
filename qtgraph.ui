@@ -38,7 +38,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QTabWidget" name="tabLeft">
+      <widget class="QTabWidget" name="tabView">
        <property name="maximumSize">
         <size>
          <width>260</width>
@@ -54,7 +54,7 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="tbPlotConf">
+       <widget class="QWidget" name="tabPlotConf">
         <attribute name="title">
          <string>График</string>
         </attribute>
@@ -146,6 +146,69 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="tabColors">
+        <attribute name="title">
+         <string>Цвета</string>
+        </attribute>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="lbPlotColor">
+           <property name="text">
+            <string>График</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="RColorPicker" name="cpPlot">
+           <property name="text">
+            <string>Color Picker</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="lbGridColor">
+           <property name="text">
+            <string>Сетка</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="lbAxesColor">
+           <property name="text">
+            <string>Оси </string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="lbBackground">
+           <property name="text">
+            <string>Фон</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="RColorPicker" name="cpGrid">
+           <property name="text">
+            <string>Color Picker</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="RColorPicker" name="cpAxes">
+           <property name="text">
+            <string>Color Picker</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="RColorPicker" name="cpBackground">
+           <property name="text">
+            <string>Color Picker</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="tbLog">
         <attribute name="title">
          <string>Log</string>
@@ -182,6 +245,11 @@
    <extends>QGroupBox</extends>
    <header>limitsgroupbox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RColorPicker</class>
+   <extends>QPushButton</extends>
+   <header>rcolorpicker.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

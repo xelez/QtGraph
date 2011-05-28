@@ -8,11 +8,13 @@ SOURCES += main.cpp \
     bnf.cpp \
     bnf_funcs.cpp \
     fplot.cpp \
-    limitsgroupbox.cpp
+    limitsgroupbox.cpp \
+    rcolorpicker.cpp
 HEADERS += qtgraph.h \
     bnf.h \
     bnf_funcs.h \
     fplot.h \
-    limitsgroupbox.h
+    limitsgroupbox.h \
+    rcolorpicker.h
 FORMS += qtgraph.ui \
     limitsgroupbox.ui
