@@ -29,7 +29,6 @@ private:
     QPen funcPen;
 
 private slots:
-    void on_sliderXLimits_valueChanged(int value);
     void on_pbBuild_clicked();
 };
 

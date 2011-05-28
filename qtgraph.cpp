@@ -21,10 +21,6 @@ QtGraph::QtGraph(QWidget *parent) :
     //Set scene
     ui->graphView->setScene(&scene);
 
-    //Set edit`s validators
-    ui->edXFrom->setValidator(new QDoubleValidator(ui->edXFrom));
-    ui->edXTo->setValidator(new QDoubleValidator(ui->edXTo));
-
 }
 
 QtGraph::~QtGraph()
@@ -54,8 +50,19 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
  }
 
 void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double width, double height) {
-    const double k = width / (points.back().x - points.front().x); // for transformation to scene coordinates
-    const double left = points.front().x*k, right = points.back().x*k, top = -height/2, bottom = height/2;
+    double kx = width / (points.back().x - points.front().x); // for transformation to scene coordinates
+    const double left = points.front().x * kx, right = points.back().x * kx;
+
+    double ky, top, bottom;
+    if (ui->limitsY->isChecked()) {
+        ky = height / (ui->limitsY->limitTo() - ui->limitsY->limitFrom());
+        top = -(ui->limitsY->limitTo() * ky);
+        bottom = -(ui->limitsY->limitFrom() * ky);
+    } else {
+        ky = kx;
+        top = -height/2;
+        bottom = height/2;
+    }
 
     scene->clear();
     scene->setSceneRect(0, 0, width, height);
@@ -70,20 +77,23 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
 
     //draw grid
     painter.setPen(gridPen);
-    const double step = k;
-    for (double x=0+step; x<right; x+=step)
+    const double stepx = kx;
+    for (double x=0+stepx; x<right; x+=stepx)
         painter.drawLine(QPointF(x, top), QPointF(x, bottom));
-    for (double x=0-step; x>left; x-=step)
+    for (double x=0-stepx; x>left; x-=stepx)
         painter.drawLine(QPointF(x, top), QPointF(x, bottom));
 
-    for (double y=0+step; y<bottom; y+=step) {
+    const double stepy = ky;
+    for (double y=0+stepy; y<bottom; y+=stepy)
         painter.drawLine(QPointF(left, y), QPointF(right, y));
-        painter.drawLine(QPointF(left, -y), QPointF(right, -y));
-    }
+    for (double y=0-stepy; y>top; y-=stepy)
+        painter.drawLine(QPointF(left, y), QPointF(right, y));
+
 
     //draw coordinate system
     painter.setPen(coordPen);
-    painter.drawLine(QPointF(left, 0.0), QPointF(right, 0.0)); //OX
+    if (top <= 0.0 && 0.0 <= bottom)
+        painter.drawLine(QPointF(left, 0.0), QPointF(right, 0.0)); //OX
     if (left<=0.0 && 0.0 <= right)
         painter.drawLine(QPointF(0.0, bottom), QPointF(0.0, top)); // the Y-coordinate is growing downwards
 
@@ -106,7 +116,7 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
             continue;
         }
 
-        double y = -k*p->y;
+        double y = -ky*p->y;
         bool bad_y = (y<top || y>bottom);
         if (bad_y) {
             y = (y<top) ? top : bottom;
@@ -117,7 +127,7 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
             painter.drawPolyline(part);
             part.clear();
         }
-        part.append(QPointF(k*p->x, y));
+        part.append(QPointF(kx*p->x, y));
         bad_py = bad_y;
     }
     painter.drawPolyline(part);
@@ -135,14 +145,11 @@ void QtGraph::on_pbBuild_clicked()
     tree *t;
 
     try {
-        bool ok;
-        double x_from = ui->edXFrom->text().toDouble(&ok);
-        if (!ok) throw QString("Bad left x boundary");
-        double x_to = ui->edXTo->text().toDouble(&ok);
-        if (!ok) throw QString("Bad right x boundary");
+        if (!ui->limitsX->isValid()) throw QString("Bad X boundaries");
+        if (ui->limitsY->isChecked() && (!ui->limitsY->isValid())) throw QString("Bad Y boundaries");
 
         t = build_parse_tree(func);
-        plist l = fplot(t, x_from, x_to, ui->graphView->width()*2);
+        plist l = fplot(t, ui->limitsX->limitFrom(), ui->limitsX->limitTo(), ui->graphView->width()*2);
         destroy_tree(t);
 
         myPopulateScene(&scene, l, ui->graphView->width(), ui->graphView->height());
@@ -150,10 +157,4 @@ void QtGraph::on_pbBuild_clicked()
     } catch (QString e) {
         QMessageBox::about(NULL, "Error", "'"+e+"'");
     }
-}
-
-void QtGraph::on_sliderXLimits_valueChanged(int value)
-{
-    ui->edXFrom->setText(QString().number(-value));
-    ui->edXTo->setText(QString().number(value));
 }
