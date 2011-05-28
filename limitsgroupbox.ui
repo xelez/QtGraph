@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LimitsGroupBox</class>
+ <widget class="QGroupBox" name="LimitsGroupBox">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>386</width>
+    <height>77</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>GroupBox</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="title">
+   <string>Границы</string>
+  </property>
+  <property name="checkable">
+   <bool>false</bool>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QDoubleSpinBox" name="sbFrom">
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::UpDownArrows</enum>
+     </property>
+     <property name="accelerated">
+      <bool>true</bool>
+     </property>
+     <property name="correctionMode">
+      <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+     </property>
+     <property name="minimum">
+      <double>-1000.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>1000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>-10.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pbSymmetry">
+     <property name="maximumSize">
+      <size>
+       <width>20</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>icons/stock_link.png</normaloff>icons/stock_link.png</iconset>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDoubleSpinBox" name="sbTo">
+     <property name="accelerated">
+      <bool>true</bool>
+     </property>
+     <property name="correctionMode">
+      <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+     </property>
+     <property name="minimum">
+      <double>-1000.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>1000.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>5.000000000000000</double>
+     </property>
+     <property name="value">
+      <double>10.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>sbFrom</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>LimitsGroupBox</receiver>
+   <slot>valuesChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>123</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>10</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sbTo</sender>
+   <signal>valueChanged(double)</signal>
+   <receiver>LimitsGroupBox</receiver>
+   <slot>valuesChanged(double)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>267</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>10</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>valuesChanged(double)</slot>
+ </slots>
+</ui>
