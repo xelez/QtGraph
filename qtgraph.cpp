@@ -77,13 +77,13 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
 
     //draw grid
     painter.setPen(gridPen);
-    const double stepx = kx;
+    const double stepx = kx * (ui->sbGridX->value());
     for (double x=0+stepx; x<right; x+=stepx)
         painter.drawLine(QPointF(x, top), QPointF(x, bottom));
     for (double x=0-stepx; x>left; x-=stepx)
         painter.drawLine(QPointF(x, top), QPointF(x, bottom));
 
-    const double stepy = ky;
+    const double stepy = ky * (ui->sbGridY->value());
     for (double y=0+stepy; y<bottom; y+=stepy)
         painter.drawLine(QPointF(left, y), QPointF(right, y));
     for (double y=0-stepy; y>top; y-=stepy)
