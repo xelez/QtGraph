@@ -54,11 +54,11 @@ void RColorPicker::paintEvent ( QPaintEvent * )
 
    option.features = QStyleOptionButton::HasMenu;
 
-   QPixmap icon( 10, 10 );
+   QPixmap icon( 16, 16 );
    icon.fill(_selectedColor);
 
    option.text = _selectedColor.name();
-   option.iconSize = QSize(10,10);
+   option.iconSize = QSize(16,16);
    option.icon = QIcon(icon);
 
    QPainter painter ( this );
