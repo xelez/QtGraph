@@ -3,3 +3,4 @@ qtgraph
 Makefile
 moc_*
 ui_*
+*.pro.user
