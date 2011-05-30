@@ -3,6 +3,7 @@
 #include "bnf.h"
 #include "fplot.h"
 
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QDebug>
 #include <cmath>
@@ -54,7 +55,7 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
     }
  }
 
-void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double width, double height) {
+void QtGraph::drawPlot(QImage *img, const plist &points, double width, double height) {
     double kx = width / (points.back().x - points.front().x); // for transformation to scene coordinates
     const double left = points.front().x * kx, right = points.back().x * kx;
 
@@ -69,18 +70,14 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
         bottom = height/2;
     }
 
-    scene->clear();
-    scene->setSceneRect(0, 0, width, height);
-
-    imgPlot = QImage(width, height, QImage::Format_RGB32);
-    imgPlot.fill(ui->cpBackground->color().rgb());
+    img->fill(ui->cpBackground->color().rgb());
 
     gridPen.setColor(ui->cpGrid->color());
     coordPen.setColor(ui->cpAxes->color());
     funcPen.setColor(ui->cpPlot->color());
 
     QPainter painter;
-    painter.begin(&imgPlot);
+    painter.begin(img);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.translate(-left, -top);
 
@@ -119,7 +116,7 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
 
     QPolygonF part;
 
-    for (plist::iterator p = points.begin(); p!=points.end(); ++p) {
+    for (plist::const_iterator p = points.begin(); p!=points.end(); ++p) {
         if (isnan(p->y)) {
             breakp = true;
             continue;
@@ -143,6 +140,14 @@ void QtGraph::myPopulateScene(QGraphicsScene * scene, plist & points, double wid
     part.clear();
 
     painter.end();
+}
+
+void QtGraph::myPopulateScene(QGraphicsScene * scene, const plist & points, double width, double height) {
+    scene->clear();
+    scene->setSceneRect(0, 0, width, height);
+
+    imgPlot = QImage(width, height, QImage::Format_RGB32);
+    drawPlot(&imgPlot, points, width, height);
     scene->addPixmap(QPixmap::fromImage(imgPlot));
 }
 
@@ -166,4 +171,14 @@ void QtGraph::on_pbBuild_clicked()
     } catch (QString e) {
         QMessageBox::about(NULL, "Error", "'"+e+"'");
     }
+}
+
+void QtGraph::on_pbSave_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save plot"), "",
+                       tr("JPEG (*.jpeg, *.jpg);;PNG (*.png);;BMP (*.bmp);;All Files (*)"));
+
+    if (!fileName.isEmpty())
+        if (!imgPlot.save(fileName))
+            QMessageBox::warning(this, "Error", "Can`t save file \"" + fileName +"\"");
 }

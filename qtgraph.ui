@@ -52,7 +52,7 @@
         <enum>QTabWidget::Rounded</enum>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
        <widget class="QWidget" name="tabPlotConf">
         <attribute name="title">
@@ -209,7 +209,34 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tbLog">
+       <widget class="QWidget" name="tabSave">
+        <attribute name="title">
+         <string>Сохранить</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QPushButton" name="pbSave">
+           <property name="text">
+            <string>Сохранить</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="tabLog">
         <attribute name="title">
          <string>Log</string>
         </attribute>

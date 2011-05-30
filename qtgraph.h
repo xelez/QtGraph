@@ -15,7 +15,8 @@ public:
     QtGraph(QWidget *parent = 0);
     ~QtGraph();
     void dbgMsgHandler(QtMsgType type, const char *msg);
-    void myPopulateScene(QGraphicsScene * scene, plist & points, double width, double height);
+    void myPopulateScene(QGraphicsScene * scene, const plist & points, double width, double height);
+    void drawPlot(QImage *img, const plist &points, double width, double height);
 
 protected:
     void changeEvent(QEvent *e);
@@ -29,6 +30,7 @@ private:
     QPen funcPen;
 
 private slots:
+    void on_pbSave_clicked();
     void on_pbBuild_clicked();
 };
 
