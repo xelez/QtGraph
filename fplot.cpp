@@ -41,15 +41,15 @@ cont_t check_continuous(const PlotP & a, const PlotP & b) {
 }
 int fplot_insert_points(tree* expr, plist & plot, const plist::iterator & a, const plist::iterator & b, int k ) {
     double tx = (a->x + b->x) / 2;
+    const cont_t cont = check_continuous(*a, *b);
+
     if (k==0) {
-        if (check_continuous(*a, *b)!=CONT_TRUE) {
+        if ( (!isnan(a->y)) && (!isnan(b->y)) && cont!=CONT_TRUE) {
             plot.insert(b, PlotP(tx, NaN, NaN));
             return 1;
         }
         return 0;
     }
-
-    cont_t cont = check_continuous(*a, *b);
 
     if ( (a->dv * b->dv < 0.0) || cont==CONT_FALSE || cont==CONT_UNKNOWN ) {
         plist::iterator t = plot.insert(b, PlotP(expr, tx));
