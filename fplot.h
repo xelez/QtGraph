@@ -28,7 +28,7 @@ struct PlotP {
 
 typedef std::list<PlotP> plist;
 
-enum cont_t {CONT_FALSE, CONT_UNKNOWN, CONT_TRUE};
+enum cont_t {CONT_UNDEFINED, CONT_FALSE, CONT_UNKNOWN, CONT_TRUE};
 cont_t check_continuous(const PlotP & a, const PlotP & b);
 plist fplot(tree * expr, double x_from, double x_to, int points_count);
 

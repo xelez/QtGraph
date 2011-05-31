@@ -15,17 +15,16 @@ inline double derivative(tree *expr, double x) {
 /*
  * check_continuous(A, B)
  *
- * returns true if it is garanteed that function is continues between A and B
- * else returns false
  */
 cont_t check_continuous(const PlotP & a, const PlotP & b) {
     const double DV_K1 = 5.0/6.0;
     const double DV_K2 = 1.0 / DV_K1;
 
-    if (isnan(a.y) || isnan(b.y))
+    if ( (isnan(a.y) && isnan(b.y)) || (isnan(a.dv) && isnan(b.dv)) )
+        return CONT_UNDEFINED;
+
+    if (isnan(a.y) || isnan(b.y) || isnan(a.dv) || isnan(b.dv))
         return CONT_FALSE;
-    if (isnan(a.dv) || isnan(b.dv))
-        return CONT_UNKNOWN;
 
     double dy = b.y - a.y;
     double py = (b.x-a.x) * a.dv; //prediction
@@ -43,14 +42,16 @@ cont_t check_continuous(const PlotP & a, const PlotP & b) {
 int fplot_insert_points(tree* expr, plist & plot, const plist::iterator & a, const plist::iterator & b, int k ) {
     double tx = (a->x + b->x) / 2;
     if (k==0) {
-        if (check_continuous(*a, *b)==CONT_UNKNOWN) {
+        if (check_continuous(*a, *b)!=CONT_TRUE) {
             plot.insert(b, PlotP(tx, NaN, NaN));
             return 1;
         }
         return 0;
     }
 
-    if ( (a->dv * b->dv < 0.0) || check_continuous(*a, *b)!=CONT_TRUE ) {
+    cont_t cont = check_continuous(*a, *b);
+
+    if ( (a->dv * b->dv < 0.0) || cont==CONT_FALSE || cont==CONT_UNKNOWN ) {
         plist::iterator t = plot.insert(b, PlotP(expr, tx));
         return fplot_insert_points(expr, plot, a, t, k-1)
                + fplot_insert_points(expr, plot, t, b, k-1)
