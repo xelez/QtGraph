@@ -17,7 +17,6 @@ public:
     ~QtGraph();
     void dbgMsgHandler(QtMsgType type, const char *msg);
     void myPopulateScene(QGraphicsScene * scene, Plotter * plotter, double width, double height);
-    void drawPlot(QImage *img, Plotter *plotter, double width, double height);
 
 protected:
     void changeEvent(QEvent *e);
@@ -26,9 +25,7 @@ private:
     Ui::QtGraph *ui;
     QGraphicsScene scene;
     QImage imgPlot;
-    QPen coordPen;
-    QPen gridPen;
-    QPen funcPen;
+
     Plotter plotter;
 
 private slots:

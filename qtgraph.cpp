@@ -15,9 +15,9 @@ QtGraph::QtGraph(QWidget *parent) :
     ui->setupUi(this);
 
     //Brushes and Pens for drawing
-    coordPen = QPen(QBrush(Qt::black), 2);
-    gridPen  = QPen(QBrush(Qt::lightGray), 0);
-    funcPen  = QPen(QBrush(Qt::blue), 1.5, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin);
+    plotter.coordPen = QPen(QBrush(Qt::black), 2);
+    plotter.gridPen  = QPen(QBrush(Qt::lightGray), 0);
+    plotter.funcPen  = QPen(QBrush(Qt::blue), 1.5, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin);
 
     //Set up color pickers
     ui->cpPlot->setColor(Qt::blue);
@@ -55,32 +55,19 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
     }
  }
 
-void QtGraph::drawPlot(QImage *img, Plotter *plotter, double width, double height) {
-
-    img->fill(ui->cpBackground->color().rgb());
-
-    gridPen.setColor(ui->cpGrid->color());
-    coordPen.setColor(ui->cpAxes->color());
-    funcPen.setColor(ui->cpPlot->color());
-    plotter->gridPen = gridPen;
-    plotter->coordPen = coordPen ;
-    plotter->funcPen = funcPen;
-
-    QPainter painter;
-    painter.begin(img);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    plotter->doPlot(&painter);
-
-    painter.end();
-}
-
 void QtGraph::myPopulateScene(QGraphicsScene * scene, Plotter *plotter, double width, double height) {
     scene->clear();
     scene->setSceneRect(0, 0, width, height);
 
     imgPlot = QImage(width, height, QImage::Format_RGB32);
-    drawPlot(&imgPlot, plotter, width, height);
+    imgPlot.fill(ui->cpBackground->color().rgb());
+
+    QPainter painter;
+    painter.begin(&imgPlot);
+    painter.setRenderHint(QPainter::Antialiasing);
+    plotter->doPlot(&painter);
+    painter.end();
+
     scene->addPixmap(QPixmap::fromImage(imgPlot));
 }
 
@@ -106,6 +93,11 @@ void QtGraph::on_pbBuild_clicked()
             plotter.setAutoYRange();
 
         plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
+
+        plotter.gridPen.setColor(ui->cpGrid->color());
+        plotter.coordPen.setColor(ui->cpAxes->color());
+        plotter.funcPen.setColor(ui->cpPlot->color());
+
         myPopulateScene(&scene, &plotter, ui->graphView->width(), ui->graphView->height());
 
         destroy_tree(t);
