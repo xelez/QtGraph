@@ -84,10 +84,20 @@ void Plotter::fplot() {
     for (double x = fromX + dx; x <= toX; x += dx) {
         plist::iterator prev = --plot.end();
         plist::iterator p = plot.insert(plot.end(), PlotP(func, x));
+        ++pointsK;
 
         fplot_insert_points(prev, p, MAX_ADD_K);
-        ++pointsK;
+        for (plist::const_iterator t = plot.begin(); t!=p; ++t) {
+            plotPoint(*t);
+        }
+        plot.erase(plot.begin(), p);
     }
+
+    for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
+        plotPoint(*p);
+    }
+
+    plot.clear();
 
     qDebug("Totaly added %d points", pointsK);
 }
@@ -183,18 +193,11 @@ void Plotter::doPlot(QPainter *painter)
     painter->translate(-left, -top);
     drawGrid(painter);
 
+    plotBegin();
+
     fplot();
 
-    //draw Graph
-
-    plotBegin();
-    for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
-        plotPoint(*p);
-    }
     plotEnd();
-
-    //For now, we don`t need it anymore... so free mem
-    plot.clear();
 
     painter->restore();
 }
