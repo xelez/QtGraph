@@ -72,6 +72,8 @@ public:
 protected:
     void fplot_insert_points(const plist::iterator & a, const plist::iterator & b, int k );
     void fplot();
+    void calculate_factors();
+    void drawGrid(QPainter *painter);
 
 private:
     tree * func;
@@ -81,6 +83,8 @@ private:
 
     double gridX, gridY;
     double kx, ky;
+
+    double left, right, top, bottom;
 
     bool autoYRange;
 

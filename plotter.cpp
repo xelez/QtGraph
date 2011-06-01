@@ -92,26 +92,25 @@ void Plotter::fplot() {
     qDebug("Totaly added %d points", pointsK);
 }
 
-void Plotter::doPlot(QPainter *painter)
+void Plotter::calculate_factors()
 {
-    fplot();
-
-    kx = width / (plot.back().x - plot.front().x); // for transformation to scene coordinates
-    const double left = plot.front().x * kx, right = plot.back().x * kx;
-
-    double top, bottom;
-    if (!autoYRange) {
+    kx = width / (toX - fromX); // for transformation to scene coordinates
+    if (!autoYRange)
         ky = height / (toY - fromY);
-        top = -(toY * ky);
-        bottom = -(fromY * ky);
-    } else {
+    else {
         ky = kx;
-        top = -height/2;
-        bottom = height/2;
+        fromY = -height/(ky*2);
+        toY = -fromY;
+        qDebug("%.4lf = fromY", fromY);
     }
 
-    painter->translate(-left, -top);
+    left   = fromX * kx;
+    right  = toX * kx;
+    top    = -(toY * ky);
+    bottom = -(fromY * ky);
+}
 
+void Plotter::drawGrid(QPainter *painter) {
     //draw grid
     painter->setPen(gridPen);
     const double stepx = kx * gridX;
@@ -126,7 +125,6 @@ void Plotter::doPlot(QPainter *painter)
     for (double y=0-stepy; y>top; y-=stepy)
         painter->drawLine(QPointF(left, y), QPointF(right, y));
 
-
     //draw coordinate system
     painter->setPen(coordPen);
     if (top <= 0.0 && 0.0 <= bottom)
@@ -138,6 +136,18 @@ void Plotter::doPlot(QPainter *painter)
     painter->setPen(Qt::black);
     if ( (left<=0.0 && 0.0 <= right) && (top<=0.0 && 0.0 <= bottom) )
         painter->drawText(0, 0, 20, 20, Qt::AlignLeft || Qt::AlignTop, "0");
+
+}
+
+void Plotter::doPlot(QPainter *painter)
+{
+    calculate_factors();
+
+    painter->save();
+    painter->translate(-left, -top);
+    drawGrid(painter);
+
+    fplot();
 
     //draw Graph
     painter->setPen(funcPen);
@@ -172,4 +182,6 @@ void Plotter::doPlot(QPainter *painter)
 
     //For now, we don`t need it anymore... so free mem
     plot.clear();
+
+    painter->restore();
 }
