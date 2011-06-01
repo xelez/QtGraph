@@ -111,7 +111,6 @@ void Plotter::calculate_factors()
         ky = kx;
         fromY = -height/(ky*2);
         toY = -fromY;
-        qDebug("%.4lf = fromY", fromY);
     }
 
     left   = fromX * kx;
