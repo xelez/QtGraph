@@ -44,6 +44,7 @@ public:
 
     void setYRange(double from, double to) {
         fromY = from; toY = to;
+        autoYRange = false;
     }
 
     void fplot_insert_points(const plist::iterator & a, const plist::iterator & b, int k );
