@@ -55,99 +55,32 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
     }
  }
 
-void QtGraph::drawPlot(QImage *img, const plist &points, double width, double height) {
-    double kx = width / (points.back().x - points.front().x); // for transformation to scene coordinates
-    const double left = points.front().x * kx, right = points.back().x * kx;
-
-    double ky, top, bottom;
-    if (ui->limitsY->isChecked()) {
-        ky = height / (ui->limitsY->limitTo() - ui->limitsY->limitFrom());
-        top = -(ui->limitsY->limitTo() * ky);
-        bottom = -(ui->limitsY->limitFrom() * ky);
-    } else {
-        ky = kx;
-        top = -height/2;
-        bottom = height/2;
-    }
+void QtGraph::drawPlot(QImage *img, Plotter *plotter, double width, double height) {
 
     img->fill(ui->cpBackground->color().rgb());
 
     gridPen.setColor(ui->cpGrid->color());
     coordPen.setColor(ui->cpAxes->color());
     funcPen.setColor(ui->cpPlot->color());
+    plotter->gridPen = gridPen;
+    plotter->coordPen = coordPen ;
+    plotter->funcPen = funcPen;
 
     QPainter painter;
     painter.begin(img);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.translate(-left, -top);
 
-    //draw grid
-    painter.setPen(gridPen);
-    const double stepx = kx * (ui->sbGridX->value());
-    for (double x=0+stepx; x<right; x+=stepx)
-        painter.drawLine(QPointF(x, top), QPointF(x, bottom));
-    for (double x=0-stepx; x>left; x-=stepx)
-        painter.drawLine(QPointF(x, top), QPointF(x, bottom));
-
-    const double stepy = ky * (ui->sbGridY->value());
-    for (double y=0+stepy; y<bottom; y+=stepy)
-        painter.drawLine(QPointF(left, y), QPointF(right, y));
-    for (double y=0-stepy; y>top; y-=stepy)
-        painter.drawLine(QPointF(left, y), QPointF(right, y));
-
-
-    //draw coordinate system
-    painter.setPen(coordPen);
-    if (top <= 0.0 && 0.0 <= bottom)
-        painter.drawLine(QPointF(left, 0.0), QPointF(right, 0.0)); //OX
-    if (left<=0.0 && 0.0 <= right)
-        painter.drawLine(QPointF(0.0, bottom), QPointF(0.0, top)); // the Y-coordinate is growing downwards
-
-    //add ZERO
-    painter.setPen(Qt::black);
-    if ( (left<=0.0 && 0.0 <= right) && (top<=0.0 && 0.0 <= bottom) )
-        painter.drawText(0, 0, 20, 20, Qt::AlignLeft || Qt::AlignTop, "0");
-
-    //draw Graph
-    painter.setPen(funcPen);
-
-    bool breakp = true;
-    bool bad_py = false;
-
-    QPolygonF part;
-
-    for (plist::const_iterator p = points.begin(); p!=points.end(); ++p) {
-        if (isnan(p->y)) {
-            breakp = true;
-            continue;
-        }
-
-        double y = -ky*p->y;
-        bool bad_y = (y<top || y>bottom);
-        if (bad_y) {
-            y = (y<top) ? top : bottom;
-        }
-
-        if (breakp || (bad_y && bad_py) ) {
-            breakp = false;
-            painter.drawPolyline(part);
-            part.clear();
-        }
-        part.append(QPointF(kx*p->x, y));
-        bad_py = bad_y;
-    }
-    painter.drawPolyline(part);
-    part.clear();
+    plotter->doPlot(&painter);
 
     painter.end();
 }
 
-void QtGraph::myPopulateScene(QGraphicsScene * scene, const plist & points, double width, double height) {
+void QtGraph::myPopulateScene(QGraphicsScene * scene, Plotter *plotter, double width, double height) {
     scene->clear();
     scene->setSceneRect(0, 0, width, height);
 
     imgPlot = QImage(width, height, QImage::Format_RGB32);
-    drawPlot(&imgPlot, points, width, height);
+    drawPlot(&imgPlot, plotter, width, height);
     scene->addPixmap(QPixmap::fromImage(imgPlot));
 }
 
@@ -160,16 +93,22 @@ void QtGraph::on_pbBuild_clicked()
 
     try {
         if (!ui->limitsX->isValid()) throw QString("Bad X boundaries");
-        if (ui->limitsY->isChecked() && (!ui->limitsY->isValid())) throw QString("Bad Y boundaries");
+        if (ui->limitsY->isChecked() && !ui->limitsY->isValid()) throw QString("Bad Y boundaries");
 
         t = build_parse_tree(func);
-        Plotter plotter(t, ui->graphView->width(), ui->graphView->height());
+        plotter.setFunc(t);
+        plotter.setSize(ui->graphView->width(), ui->graphView->height());
         plotter.setXRange(ui->limitsX->limitFrom(), ui->limitsX->limitTo());
-        plist l = plotter.fplot(ui->graphView->width()*2);
-        destroy_tree(t);
 
-        myPopulateScene(&scene, l, ui->graphView->width(), ui->graphView->height());
-        l.clear();
+        if (ui->limitsY->isChecked())
+            plotter.setYRange(ui->limitsY->limitFrom(), ui->limitsY->limitTo());
+        else
+            plotter.setAutoYRange();
+
+        plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
+        myPopulateScene(&scene, &plotter, ui->graphView->width(), ui->graphView->height());
+
+        destroy_tree(t);
     } catch (QString e) {
         QMessageBox::about(NULL, "Error", "'"+e+"'");
     }

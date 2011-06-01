@@ -1,6 +1,8 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
+#include <QPainter>
+#include <QPen>
 #include <list>
 #include <cmath>
 
@@ -36,7 +38,15 @@ cont_t check_continuous(const PlotP & a, const PlotP & b);
 class Plotter
 {
 public:
-    Plotter(tree * _func, double _width, double _height);
+    Plotter();
+
+    void setFunc(tree * f) { // temp
+        func = f;
+    }
+
+    void setSize(double w, double h) {
+        width = w; height = h;
+    }
 
     void setXRange(double from, double to) {
         fromX = from; toX = to;
@@ -47,17 +57,33 @@ public:
         autoYRange = false;
     }
 
+    void setAutoYRange() {
+        autoYRange = true;
+    }
+
+    void setGrid(double x, double y) {
+        gridX = x; gridY = y;
+    }
+
+    void doPlot(QPainter * painter);
+
+    QPen gridPen, coordPen, funcPen;
+
+protected:
     void fplot_insert_points(const plist::iterator & a, const plist::iterator & b, int k );
-    plist fplot(int points_count);
+    void fplot();
 
 private:
     tree * func;
     double width, height;
     double fromX, toX;
     double fromY, toY;
+
+    double gridX, gridY;
     double kx, ky;
 
     bool autoYRange;
+
     plist plot;
     int pointsK;
 };

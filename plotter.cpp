@@ -1,8 +1,14 @@
 #include "plotter.h"
 
-Plotter::Plotter(tree *_func, double _width, double _height) :
-        func(_func), width(_width), height(_height), autoYRange(true)
+Plotter::Plotter()
 {
+    width = height = 100;
+    func = NULL;
+    fromX = toX = 10;
+    fromY = toY = 0;
+    autoYRange = true;
+
+    gridX = gridY = 1;
 }
 
 inline double feval(tree *expr , double x) {
@@ -63,12 +69,13 @@ void Plotter::fplot_insert_points(const plist::iterator &a, const plist::iterato
     }
 }
 
-plist Plotter::fplot(int points_count) {
+void Plotter::fplot() {
     const int MAX_ADD_K = 12;
 
     plot.clear();
     pointsK = 0;
 
+    int points_count = width*2;
     double dx = (toX - fromX) / points_count;
 
     // add first point
@@ -83,7 +90,86 @@ plist Plotter::fplot(int points_count) {
     }
 
     qDebug("Totaly added %d points", pointsK);
-
-    return plot;
 }
 
+void Plotter::doPlot(QPainter *painter)
+{
+    fplot();
+
+    kx = width / (plot.back().x - plot.front().x); // for transformation to scene coordinates
+    const double left = plot.front().x * kx, right = plot.back().x * kx;
+
+    double top, bottom;
+    if (!autoYRange) {
+        ky = height / (toY - fromY);
+        top = -(toY * ky);
+        bottom = -(fromY * ky);
+    } else {
+        ky = kx;
+        top = -height/2;
+        bottom = height/2;
+    }
+
+    painter->translate(-left, -top);
+
+    //draw grid
+    painter->setPen(gridPen);
+    const double stepx = kx * gridX;
+    for (double x=0+stepx; x<right; x+=stepx)
+        painter->drawLine(QPointF(x, top), QPointF(x, bottom));
+    for (double x=0-stepx; x>left; x-=stepx)
+        painter->drawLine(QPointF(x, top), QPointF(x, bottom));
+
+    const double stepy = ky * gridY;
+    for (double y=0+stepy; y<bottom; y+=stepy)
+        painter->drawLine(QPointF(left, y), QPointF(right, y));
+    for (double y=0-stepy; y>top; y-=stepy)
+        painter->drawLine(QPointF(left, y), QPointF(right, y));
+
+
+    //draw coordinate system
+    painter->setPen(coordPen);
+    if (top <= 0.0 && 0.0 <= bottom)
+        painter->drawLine(QPointF(left, 0.0), QPointF(right, 0.0)); //OX
+    if (left<=0.0 && 0.0 <= right)
+        painter->drawLine(QPointF(0.0, bottom), QPointF(0.0, top)); // the Y-coordinate is growing downwards
+
+    //add ZERO
+    painter->setPen(Qt::black);
+    if ( (left<=0.0 && 0.0 <= right) && (top<=0.0 && 0.0 <= bottom) )
+        painter->drawText(0, 0, 20, 20, Qt::AlignLeft || Qt::AlignTop, "0");
+
+    //draw Graph
+    painter->setPen(funcPen);
+
+    bool breakp = true;
+    bool bad_py = false;
+
+    QPolygonF part;
+
+    for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
+        if (isnan(p->y)) {
+            breakp = true;
+            continue;
+        }
+
+        double y = -ky*p->y;
+        bool bad_y = (y<top || y>bottom);
+        if (bad_y) {
+            y = (y<top) ? top : bottom;
+        }
+
+        if (breakp || (bad_y && bad_py) ) {
+            breakp = false;
+            painter->drawPolyline(part);
+            part.clear();
+        }
+        part.append(QPointF(kx*p->x, y));
+        bad_py = bad_y;
+    }
+    painter->drawPolyline(part);
+    part.clear();
+
+    //For now, we don`t need it anymore... so free mem
+    plot.clear();
+}
