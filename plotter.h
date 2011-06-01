@@ -76,6 +76,10 @@ protected:
     void drawGrid(QPainter *painter);
 
 private:
+    void plotBegin();
+    void plotPoint(const PlotP & p);
+    void plotEnd();
+
     tree * func;
     double width, height;
     double fromX, toX;
@@ -90,6 +94,13 @@ private:
 
     plist plot;
     int pointsK;
+
+    //for plotBegin, plotPoint, plotEnd
+    bool breakp;
+    bool bad_py;
+    QPolygonF part;
+    QPainter *painter;
+
 };
 
 #endif // PLOTTER_H

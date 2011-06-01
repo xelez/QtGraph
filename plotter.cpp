@@ -139,8 +139,44 @@ void Plotter::drawGrid(QPainter *painter) {
 
 }
 
+void Plotter::plotBegin() {
+    painter->setPen(funcPen);
+
+    breakp = true;
+    bad_py = false;
+
+    part.clear();
+}
+
+void Plotter::plotPoint(const PlotP &p) {
+    if (isnan(p.y)) {
+        breakp = true;
+        return;
+    }
+
+    double y = -ky*p.y;
+    bool bad_y = (y<top || y>bottom);
+    if (bad_y) {
+        y = (y<top) ? top : bottom;
+    }
+
+    if (breakp || (bad_y && bad_py) ) {
+        breakp = false;
+        painter->drawPolyline(part);
+        part.clear();
+    }
+    part.append(QPointF(kx*p.x, y));
+    bad_py = bad_y;
+}
+
+void Plotter::plotEnd() {
+    painter->drawPolyline(part);
+    part.clear();
+}
+
 void Plotter::doPlot(QPainter *painter)
 {
+    this->painter = painter;
     calculate_factors();
 
     painter->save();
@@ -150,35 +186,12 @@ void Plotter::doPlot(QPainter *painter)
     fplot();
 
     //draw Graph
-    painter->setPen(funcPen);
 
-    bool breakp = true;
-    bool bad_py = false;
-
-    QPolygonF part;
-
+    plotBegin();
     for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
-        if (isnan(p->y)) {
-            breakp = true;
-            continue;
-        }
-
-        double y = -ky*p->y;
-        bool bad_y = (y<top || y>bottom);
-        if (bad_y) {
-            y = (y<top) ? top : bottom;
-        }
-
-        if (breakp || (bad_y && bad_py) ) {
-            breakp = false;
-            painter->drawPolyline(part);
-            part.clear();
-        }
-        part.append(QPointF(kx*p->x, y));
-        bad_py = bad_y;
+        plotPoint(*p);
     }
-    painter->drawPolyline(part);
-    part.clear();
+    plotEnd();
 
     //For now, we don`t need it anymore... so free mem
     plot.clear();
