@@ -1,7 +1,7 @@
 #include "qtgraph.h"
 #include "ui_qtgraph.h"
 #include "bnf.h"
-#include "fplot.h"
+#include "plotter.h"
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -163,7 +163,9 @@ void QtGraph::on_pbBuild_clicked()
         if (ui->limitsY->isChecked() && (!ui->limitsY->isValid())) throw QString("Bad Y boundaries");
 
         t = build_parse_tree(func);
-        plist l = fplot(t, ui->limitsX->limitFrom(), ui->limitsX->limitTo(), ui->graphView->width()*2);
+        Plotter plotter(t, ui->graphView->width(), ui->graphView->height());
+        plotter.setXRange(ui->limitsX->limitFrom(), ui->limitsX->limitTo());
+        plist l = plotter.fplot(ui->graphView->width()*2);
         destroy_tree(t);
 
         myPopulateScene(&scene, l, ui->graphView->width(), ui->graphView->height());

@@ -7,14 +7,14 @@ SOURCES += main.cpp \
     qtgraph.cpp \
     bnf.cpp \
     bnf_funcs.cpp \
-    fplot.cpp \
     limitsgroupbox.cpp \
-    rcolorpicker.cpp
+    rcolorpicker.cpp \
+    plotter.cpp
 HEADERS += qtgraph.h \
     bnf.h \
     bnf_funcs.h \
-    fplot.h \
     limitsgroupbox.h \
-    rcolorpicker.h
+    rcolorpicker.h \
+    plotter.h
 FORMS += qtgraph.ui \
     limitsgroupbox.ui

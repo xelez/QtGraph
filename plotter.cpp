@@ -1,6 +1,9 @@
-#include "bnf.h"
-#include "fplot.h"
-#include <cmath>
+#include "plotter.h"
+
+Plotter::Plotter(tree *_func, double _width, double _height) :
+        func(_func), width(_width), height(_height), autoYRange(true)
+{
+}
 
 inline double feval(tree *expr , double x) {
     if (!expr) return NaN;
@@ -39,45 +42,48 @@ cont_t check_continuous(const PlotP & a, const PlotP & b) {
             return CONT_UNKNOWN;
     }
 }
-int fplot_insert_points(tree* expr, plist & plot, const plist::iterator & a, const plist::iterator & b, int k ) {
+
+void Plotter::fplot_insert_points(const plist::iterator &a, const plist::iterator &b, int k) {
     double tx = (a->x + b->x) / 2;
     const cont_t cont = check_continuous(*a, *b);
 
     if (k==0) {
         if ( (!isnan(a->y)) && (!isnan(b->y)) && cont!=CONT_TRUE) {
             plot.insert(b, PlotP(tx, NaN, NaN));
-            return 1;
+            ++pointsK;
         }
-        return 0;
+        return;
     }
 
     if ( (a->dv * b->dv < 0.0) || cont==CONT_FALSE || cont==CONT_UNKNOWN ) {
-        plist::iterator t = plot.insert(b, PlotP(expr, tx));
-        return fplot_insert_points(expr, plot, a, t, k-1)
-               + fplot_insert_points(expr, plot, t, b, k-1)
-               + 1;
+        plist::iterator t = plot.insert(b, PlotP(func, tx));
+        fplot_insert_points(a, t, k-1);
+        fplot_insert_points(t, b, k-1);
+        pointsK += 2;
     }
-    return 0;
 }
 
-plist fplot(tree * expr, double x_from, double x_to, int points_count) {
-    const int MAX_ADD_K = 13;
+plist Plotter::fplot(int points_count) {
+    const int MAX_ADD_K = 12;
 
-    plist plot;
-    double dx = (x_to - x_from) / points_count;
+    plot.clear();
+    pointsK = 0;
 
-    int pk=1;
+    double dx = (toX - fromX) / points_count;
+
     // add first point
-    plot.push_back(PlotP(expr, x_from));
+    plot.push_back(PlotP(func, fromX));
 
-    for (double x=x_from+dx; x<=x_to; x+=dx) {
+    for (double x = fromX + dx; x <= toX; x += dx) {
         plist::iterator prev = --plot.end();
-        plist::iterator p = plot.insert(plot.end(), PlotP(expr, x));
+        plist::iterator p = plot.insert(plot.end(), PlotP(func, x));
 
-        pk += fplot_insert_points(expr, plot, prev, p, MAX_ADD_K) + 1;
+        fplot_insert_points(prev, p, MAX_ADD_K);
+        ++pointsK;
     }
 
-    qDebug("Totaly added %d points", pk);
+    qDebug("Totaly added %d points", pointsK);
 
     return plot;
 }
+

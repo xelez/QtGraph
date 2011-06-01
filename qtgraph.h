@@ -3,7 +3,8 @@
 
 #include <QWidget>
 #include <QGraphicsScene>
-#include <fplot.h>
+
+#include "plotter.h"
 
 namespace Ui {
     class QtGraph;
