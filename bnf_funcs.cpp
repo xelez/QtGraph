@@ -3,6 +3,7 @@
 #include <cmath>
 
 std::map<QString, opfunc> bnf_funcs;
+std::map<QString, double> bnf_consts;
 
 double bnf_sin(tree * t) {
     return sin(t->op1->value);
@@ -55,6 +56,8 @@ double bnf_boobs(tree *t) { //just for fun =)
 }
 
 void bnf_funcs_init() {
+    bnf_consts_init();
+
     bnf_funcs["abs"]    = bnf_abs;
     bnf_funcs["sin"]    = bnf_sin;
     bnf_funcs["cos"]    = bnf_cos;
@@ -66,4 +69,8 @@ void bnf_funcs_init() {
     bnf_funcs["arccos"] = bnf_arccos;
     bnf_funcs["arctg"]  = bnf_arctg;
     bnf_funcs["boobs"]  = bnf_boobs;
+}
+
+void bnf_consts_init() {
+    bnf_consts["pi"] = 3.1415926535897932384626433832795;
 }

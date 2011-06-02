@@ -33,7 +33,7 @@ QString pop_lexem(QString & str) {
  * <expr1> ::= <expr1> + <expr2> | <expr1> - <expr2> | <expr2>
  * <expr2> ::= <expr2> * <expr3> | <expr2> / <expr3> | <expr3>
  * <expr3> ::= <expr4> ^ <expr3> | <expr4>
- * <expr4> ::= x | <number> | -<expr4> | +<expr4> | <func_name>(<expr1>) | (<expr1>)
+ * <expr4> ::= x | <const> | <number> | -<expr4> | +<expr4> | <func_name>(<expr1>) | (<expr1>)
  */
 
 void error(QString s) throw(QString) {
@@ -126,6 +126,10 @@ tree* parse4(QString & str) {
         t->f = (void*) bnf_funcs[lex];
         t->op1 = p;
         return t;
+    }
+
+    if (bnf_consts.find(lex)!=bnf_consts.end()) {
+        return new tree(bnf_consts[lex]);
     }
 
     error(lex);
