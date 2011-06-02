@@ -86,7 +86,7 @@ private:
     double fromY, toY;
 
     double gridX, gridY;
-    double kx, ky;
+    double kx, ky, kdx;
 
     double left, right, top, bottom;
 
@@ -100,7 +100,6 @@ private:
     bool bad_py;
     QPolygonF part;
     QPainter *painter;
-
 };
 
 #endif // PLOTTER_H

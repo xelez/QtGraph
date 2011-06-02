@@ -1,4 +1,5 @@
 #include "plotter.h"
+#include <QTime>
 
 Plotter::Plotter()
 {
@@ -104,6 +105,7 @@ void Plotter::fplot() {
 
 void Plotter::calculate_factors()
 {
+    kdx = (toX - fromX) / (2*width); // for optimized drawing
     kx = width / (toX - fromX); // for transformation to scene coordinates
     if (!autoYRange)
         ky = height / (toY - fromY);
@@ -155,6 +157,7 @@ void Plotter::plotBegin() {
     bad_py = false;
 
     part.clear();
+    part.reserve(width*2);
 }
 
 void Plotter::plotPoint(const PlotP &p) {
@@ -174,7 +177,18 @@ void Plotter::plotPoint(const PlotP &p) {
         painter->drawPolyline(part);
         part.clear();
     }
-    part.append(QPointF(kx*p.x, y));
+
+    const QPointF t3(kx*p.x, y);
+
+    if (part.count() > 1) {
+        const QPointF & t1 = *(part.constEnd()-2);
+        const QPointF & t2 = *(part.constEnd()-1);
+        if ( ( t3.x()-t1.x() <= kdx ) && ( (t2.y()-t1.y())*(t3.y()-t2.y()) >= 0.0 ) ) {
+            part.pop_back();
+        }
+    }
+    part.append(t3);
+
     bad_py = bad_y;
 }
 
@@ -185,6 +199,10 @@ void Plotter::plotEnd() {
 
 void Plotter::doPlot(QPainter *painter)
 {
+    // measure the time for plotting
+    QTime timer;
+    timer.start();
+
     this->painter = painter;
     calculate_factors();
 
@@ -199,4 +217,6 @@ void Plotter::doPlot(QPainter *painter)
     plotEnd();
 
     painter->restore();
+
+    qDebug("Time: %d ms", timer.elapsed());
 }
