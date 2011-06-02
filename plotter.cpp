@@ -50,7 +50,7 @@ cont_t check_continuous(const PlotP & a, const PlotP & b) {
     }
 }
 
-void Plotter::fplot_insert_points(const plist::iterator &a, const plist::iterator &b, int k) {
+void Plotter::insert_points(const plist::iterator &a, const plist::iterator &b, int k) {
     double tx = (a->x + b->x) / 2;
     const cont_t cont = check_continuous(*a, *b);
 
@@ -64,43 +64,10 @@ void Plotter::fplot_insert_points(const plist::iterator &a, const plist::iterato
 
     if ( (a->dv * b->dv < 0.0) || cont==CONT_FALSE || cont==CONT_UNKNOWN ) {
         plist::iterator t = plot.insert(b, PlotP(func, tx));
-        fplot_insert_points(a, t, k-1);
-        fplot_insert_points(t, b, k-1);
-        pointsK += 2;
-    }
-}
-
-void Plotter::fplot() {
-    const int MAX_ADD_K = 12;
-
-    plot.clear();
-    pointsK = 0;
-
-    int points_count = width*2;
-    double dx = (toX - fromX) / points_count;
-
-    // add first point
-    plot.push_back(PlotP(func, fromX));
-
-    for (double x = fromX + dx; x <= toX; x += dx) {
-        plist::iterator prev = --plot.end();
-        plist::iterator p = plot.insert(plot.end(), PlotP(func, x));
+        insert_points(a, t, k-1);
+        insert_points(t, b, k-1);
         ++pointsK;
-
-        fplot_insert_points(prev, p, MAX_ADD_K);
-        for (plist::const_iterator t = plot.begin(); t!=p; ++t) {
-            plotPoint(*t);
-        }
-        plot.erase(plot.begin(), p);
     }
-
-    for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
-        plotPoint(*p);
-    }
-
-    plot.clear();
-
-    qDebug("Totaly added %d points", pointsK);
 }
 
 void Plotter::calculate_factors()
@@ -203,20 +170,50 @@ void Plotter::doPlot(QPainter *painter)
     QTime timer;
     timer.start();
 
-    this->painter = painter;
+    // setup settings and clear old stuff
     calculate_factors();
+    plot.clear();
+    pointsK = 0;
 
+    // setup painter
+    this->painter = painter;
     painter->save();
     painter->translate(-left, -top);
     drawGrid(painter);
 
+    // setup plot drawing
     plotBegin();
 
-    fplot();
+    // Calculations
+    const int points_count = width*2;
+    const double dx = (toX - fromX) / points_count;
 
+    // add first point
+    plot.push_back(PlotP(func, fromX));
+
+    for (double x = fromX + dx; x <= toX; x += dx) {
+        plist::iterator prev = --plot.end();
+        plist::iterator p = plot.insert(plot.end(), PlotP(func, x));
+        ++pointsK;
+
+        insert_points(prev, p, MAX_INSERT_K);
+        for (plist::const_iterator t = plot.begin(); t!=p; ++t) {
+            plotPoint(*t);
+        }
+        plot.erase(plot.begin(), p);
+    }
+
+    for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
+        plotPoint(*p);
+    }
+    plot.clear();
+
+    // end of plotting
     plotEnd();
 
+    // restore painter old state
     painter->restore();
 
+    qDebug("Totaly added %d points", pointsK);
     qDebug("Time: %d ms", timer.elapsed());
 }

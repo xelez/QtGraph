@@ -10,6 +10,12 @@
 
 const double EPS_DV = 1e-8; // for derivative
 
+/*
+ * MAX_INSERT_K
+ * we can insert 2^CONST points in the worst case
+ */
+const int MAX_INSERT_K = 12;
+
 double feval(tree *expr , double x);
 double derivative(tree *expr, double x);
 
@@ -70,8 +76,7 @@ public:
     QPen gridPen, coordPen, funcPen;
 
 protected:
-    void fplot_insert_points(const plist::iterator & a, const plist::iterator & b, int k );
-    void fplot();
+    void insert_points(const plist::iterator & a, const plist::iterator & b, int k );
     void calculate_factors();
     void drawGrid(QPainter *painter);
 
