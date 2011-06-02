@@ -43,7 +43,19 @@ double bnf_arctg(tree *t) {
     return atan(t->op1->value);
 }
 
+double bnf_abs(tree *t) {
+    return fabs(t->op1->value);
+}
+
+double bnf_boobs(tree *t) { //just for fun =)
+ const double x = t->op1->value;
+ return 0.7
+        * (3.2 - fabs((fabs(1.8-fabs(0.49*x))-fabs(0.46*x)+1.9)-1.1) + fabs(1.9-fabs(0.55*x)) - fabs(0.52*x))
+        * (0.5*fabs(sin(2*(fabs(x)-0.8))-0.9) + 0.5*sin(1.9*(fabs(x)-0.78)) + fabs(sin(fabs(x))));
+}
+
 void bnf_funcs_init() {
+    bnf_funcs["abs"]    = bnf_abs;
     bnf_funcs["sin"]    = bnf_sin;
     bnf_funcs["cos"]    = bnf_cos;
     bnf_funcs["tg"]     = bnf_tg;
@@ -52,5 +64,6 @@ void bnf_funcs_init() {
     bnf_funcs["sqrt"]   = bnf_sqrt;
     bnf_funcs["arcsin"] = bnf_arcsin;
     bnf_funcs["arccos"] = bnf_arccos;
-    bnf_funcs["arctg"] = bnf_arctg;
+    bnf_funcs["arctg"]  = bnf_arctg;
+    bnf_funcs["boobs"]  = bnf_boobs;
 }
