@@ -31,6 +31,7 @@ QtGraph::QtGraph(QWidget *parent) :
     ui->graphView->setScene(&scene);
 
     //set state
+    ui->progressBar->setVisible(false);
     working = false;
 }
 
@@ -84,10 +85,14 @@ void QtGraph::setWorking(bool b) {
         working = true;
         ui->pbBuild->setText("Abort");
         ui->tabView->setEnabled(false);
+        ui->edFunc->hide();
+        ui->progressBar->show();
     } else {
         working = false;
         ui->pbBuild->setText("Build");
         ui->tabView->setEnabled(true);
+        ui->progressBar->hide();
+        ui->edFunc->show();
     }
 }
 
