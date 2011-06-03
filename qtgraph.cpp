@@ -14,7 +14,8 @@ QtGraph::QtGraph(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //Brushes and Pens for drawing
+    //Plotter config
+    plotter.setProgressBar(ui->progressBar);
     plotter.coordPen = QPen(QBrush(Qt::black), 2);
     plotter.gridPen  = QPen(QBrush(Qt::lightGray), 0);
     plotter.funcPen  = QPen(QBrush(Qt::blue), 1.5, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin);
@@ -28,6 +29,9 @@ QtGraph::QtGraph(QWidget *parent) :
 
     //Set scene
     ui->graphView->setScene(&scene);
+
+    //set state
+    working = false;
 }
 
 QtGraph::~QtGraph()
@@ -56,44 +60,73 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
     }
  }
 
-void QtGraph::myPopulateScene() {
-    scene.clear();
-    scene.setSceneRect(0, 0, plotter.imgPlot.width(), plotter.imgPlot.height());
-    scene.addPixmap(QPixmap::fromImage(plotter.imgPlot));
+void QtGraph::setPlotterSettings(tree *func) {
+    plotter.setFunc(func);
+
+    plotter.setSize(ui->graphView->width(), ui->graphView->height());
+    plotter.setXRange(ui->limitsX->limitFrom(), ui->limitsX->limitTo());
+    plotter.setAutoYRange();
+    if (ui->limitsY->isChecked())
+        plotter.setYRange(ui->limitsY->limitFrom(), ui->limitsY->limitTo());
+
+    plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
+
+    //colors
+    plotter.gridPen.setColor(ui->cpGrid->color());
+    plotter.coordPen.setColor(ui->cpAxes->color());
+    plotter.funcPen.setColor(ui->cpPlot->color());
+    plotter.backgroundColor = ui->cpBackground->color();
 }
 
-void QtGraph::on_pbBuild_clicked()
-{
+void QtGraph::setWorking(bool b) {
+    if (b==working) return;
+    if (b) {
+        working = true;
+        ui->pbBuild->setText("Abort");
+        ui->tabView->setEnabled(false);
+    } else {
+        working = false;
+        ui->pbBuild->setText("Build");
+        ui->tabView->setEnabled(true);
+    }
+}
+
+void QtGraph::build() {
     ui->teLog->clear();
 
-    QString func = ui->edFunc->text();
-
+    const QString str = ui->edFunc->text();
     try {
         if (!ui->limitsX->isValid()) throw QString("Bad X boundaries");
         if (ui->limitsY->isChecked() && !ui->limitsY->isValid()) throw QString("Bad Y boundaries");
 
-        tree *t = build_parse_tree(func);
-        plotter.setFunc(t);
-        plotter.setSize(ui->graphView->width(), ui->graphView->height());
-        plotter.setXRange(ui->limitsX->limitFrom(), ui->limitsX->limitTo());
-        plotter.setAutoYRange();
-        if (ui->limitsY->isChecked())
-            plotter.setYRange(ui->limitsY->limitFrom(), ui->limitsY->limitTo());
+        func = build_parse_tree(str);
+        setPlotterSettings(func);
 
-        plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
-
-        plotter.gridPen.setColor(ui->cpGrid->color());
-        plotter.coordPen.setColor(ui->cpAxes->color());
-        plotter.funcPen.setColor(ui->cpPlot->color());
-        plotter.backgroundColor = ui->cpBackground->color();
-
+        setWorking(true);
         plotter.doPlot();
 
-        myPopulateScene();
-
-        destroy_tree(t);
+        buildEnd();
     } catch (QString e) {
         QMessageBox::about(NULL, "Error", e);
+    }
+}
+
+void QtGraph::buildEnd() {
+    scene.clear();
+    scene.setSceneRect(0, 0, plotter.imgPlot.width(), plotter.imgPlot.height());
+    scene.addPixmap(QPixmap::fromImage(plotter.imgPlot));
+
+    destroy_tree(func);
+
+    setWorking(false);
+}
+
+void QtGraph::on_pbBuild_clicked()
+{
+    if (!working) {
+        build();
+    } else {
+        plotter.abort();
     }
 }
 

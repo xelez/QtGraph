@@ -16,16 +16,23 @@ public:
     QtGraph(QWidget *parent = 0);
     ~QtGraph();
     void dbgMsgHandler(QtMsgType type, const char *msg);
-    void myPopulateScene();
+    void setPlotterSettings(tree *func);
 
 protected:
     void changeEvent(QEvent *e);
+    void setWorking(bool b);
 
 private:
     Ui::QtGraph *ui;
     QGraphicsScene scene;
 
+    bool working;
+    tree * func;
     Plotter plotter;
+
+public slots:
+    void build();
+    void buildEnd();
 
 private slots:
     void on_pbSave_clicked();
