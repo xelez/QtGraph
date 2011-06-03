@@ -40,6 +40,10 @@ void error(QString s) throw(QString) {
     throw s;
 }
 
+void errorUnexpected(QString lexem) {
+    throw QString("Unexpected lexem \"%1\"").arg(lexem);
+}
+
 tree* parse1(QString & str);
 tree* parse2(QString & str);
 tree* parse3(QString & str);
@@ -53,7 +57,7 @@ tree* parse1(QString & str) {
     while (1) {
         op = peek_lexem(str);
         if (op==")" || op.isEmpty()) break;
-        if (op!="+" && op!="-") error("1");
+        if (op!="+" && op!="-") errorUnexpected(op);
         pop_lexem(str);
 
         tree *r = parse2(str);
@@ -71,7 +75,7 @@ tree* parse2(QString & str) {
         QString op = peek_lexem(str);
         if (op==")" || op.isEmpty()) break;
         if (op=="+" || op=="-") break;
-        if (op!="*" && op!="/") error("2");
+        if (op!="*" && op!="/") errorUnexpected(op);
         pop_lexem(str);
 
         tree *r = parse3(str);
@@ -88,7 +92,7 @@ tree* parse3(QString & str) {
     QString op = peek_lexem(str);
     if (op==")" || op.isEmpty()) return t;
     if (op=="+" || op=="-" || op=="/" || op=="*") return t;
-    if (op!="^") error("3");
+    if (op!="^") errorUnexpected(op);
     pop_lexem(str);
 
     tree *r = parse3(str);
@@ -108,7 +112,8 @@ tree* parse4(QString & str) {
 
     if (lex=="(") {
         tree * t = parse1(str);
-        if (pop_lexem(str)!=")") error(") Expected");
+        if (pop_lexem(str)!=")")
+            error("\")\" expected");
         return t;
     }
 
@@ -119,9 +124,9 @@ tree* parse4(QString & str) {
     }
 
     if (bnf_funcs.find(lex)!=bnf_funcs.end()) {
-        if (pop_lexem(str)!="(") error("( Expected");
+        if (pop_lexem(str)!="(") error("\"(\" expected");
         tree * p = parse1(str);
-        if (pop_lexem(str)!=")") error(") Expected");
+        if (pop_lexem(str)!=")") error("\")\" expected");
         tree * t = new tree(QChar('f'));
         t->f = (void*) bnf_funcs[lex];
         t->op1 = p;
@@ -132,7 +137,7 @@ tree* parse4(QString & str) {
         return new tree(bnf_consts[lex]);
     }
 
-    error(lex);
+    error(QString("Unknown constant or function \"%1\"").arg(lex));
     return NULL;
 }
 
@@ -140,7 +145,7 @@ tree* parse4(QString & str) {
 tree * build_parse_tree(QString str) {
     str = str.toLower();
     tree * t = parse1(str);
-    if (!str.isEmpty()) throw str;
+    if (!str.isEmpty()) error(QString("Unexpected characters after the end of expression: \"%1\"").arg(str));
     return t;
 }
 

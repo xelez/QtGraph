@@ -102,7 +102,7 @@ void QtGraph::on_pbBuild_clicked()
 
         destroy_tree(t);
     } catch (QString e) {
-        QMessageBox::about(NULL, "Error", "'"+e+"'");
+        QMessageBox::about(NULL, "Error", e);
     }
 }
 
