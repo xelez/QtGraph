@@ -46,32 +46,15 @@ class Plotter
 public:
     Plotter();
 
-    void setFunc(tree * f) {
-        func = f;
-    }
-
-    void setSize(double w, double h) {
-        width = w; height = h;
-    }
-
-    void setXRange(double from, double to) {
-        fromX = from; toX = to;
-    }
-
-    void setYRange(double from, double to) {
-        fromY = from; toY = to;
-        autoYRange = false;
-    }
-
-    void setAutoYRange() {
-        autoYRange = true;
-    }
-
-    void setGrid(double x, double y) {
-        gridX = x; gridY = y;
-    }
+    void setFunc(tree * f) { func = f; }
+    void setSize(double w, double h) { width = w; height = h; }
+    void setXRange(double from, double to) { fromX = from; toX = to; }
+    void setYRange(double from, double to) { fromY = from; toY = to; autoYRange = false; }
+    void setAutoYRange() { autoYRange = true; }
+    void setGrid(double x, double y) { gridX = x; gridY = y; }
 
     void doPlot();
+    void abort() { needAbort=true; }
 
     QPen gridPen, coordPen, funcPen;
     QColor backgroundColor;
@@ -92,14 +75,14 @@ private:
     double width, height;
     double fromX, toX;
     double fromY, toY;
+    bool autoYRange;
 
     double gridX, gridY;
     double kx, ky, kdx;
 
     double left, right, top, bottom;
 
-    bool autoYRange;
-
+    bool needAbort;
     plist plot;
     int pointsK;
 

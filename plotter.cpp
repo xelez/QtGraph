@@ -1,5 +1,6 @@
 #include "plotter.h"
 #include <QTime>
+#include <QCoreApplication>
 
 Plotter::Plotter()
 {
@@ -166,6 +167,8 @@ void Plotter::plotEnd() {
 
 void Plotter::doPlot()
 {
+    needAbort = false;
+
     // measure the time for plotting
     QTime timer;
     timer.start();
@@ -198,6 +201,10 @@ void Plotter::doPlot()
     plot.push_back(PlotP(func, fromX));
 
     for (double x = fromX + dx; x <= toX; x += dx) {
+        if (needAbort) break;
+        //Don`t freeze the user interface
+        QCoreApplication::processEvents();
+
         plist::iterator prev = --plot.end();
         plist::iterator p = plot.insert(plot.end(), PlotP(func, x));
         ++pointsK;
