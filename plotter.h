@@ -1,6 +1,7 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
+#include <QProgressBar>
 #include <QPainter>
 #include <QPen>
 #include <list>
@@ -52,6 +53,7 @@ public:
     void setYRange(double from, double to) { fromY = from; toY = to; autoYRange = false; }
     void setAutoYRange() { autoYRange = true; }
     void setGrid(double x, double y) { gridX = x; gridY = y; }
+    void setProgressBar(QProgressBar *bar) { progressBar = bar; }
 
     void doPlot();
     void abort() { needAbort=true; }
@@ -71,6 +73,7 @@ private:
     void plotPoint(const PlotP & p);
     void plotEnd();
 
+    QProgressBar *progressBar;
     tree * func;
     double width, height;
     double fromX, toX;

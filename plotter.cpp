@@ -167,16 +167,24 @@ void Plotter::plotEnd() {
 
 void Plotter::doPlot()
 {
-    needAbort = false;
-
     // measure the time for plotting
     QTime timer;
     timer.start();
 
     // setup settings and clear old stuff
+    needAbort = false;
     calculate_factors();
     plot.clear();
     pointsK = 0;
+
+    // Calculations
+    const int points_count = width*2;
+    const double dx = (toX - fromX) / points_count;
+
+    // setup progressBar
+    progressBar->setMinimum(0);
+    progressBar->setMaximum(points_count);
+    progressBar->reset();
 
     // setup image and painter
     imgPlot = QImage(width, height, QImage::Format_RGB32);
@@ -193,13 +201,10 @@ void Plotter::doPlot()
     // setup plot drawing
     plotBegin();
 
-    // Calculations
-    const int points_count = width*2;
-    const double dx = (toX - fromX) / points_count;
-
     // add first point
     plot.push_back(PlotP(func, fromX));
 
+    int i=0;
     for (double x = fromX + dx; x <= toX; x += dx) {
         if (needAbort) break;
         //Don`t freeze the user interface
@@ -214,6 +219,8 @@ void Plotter::doPlot()
             plotPoint(*t);
         }
         plot.erase(plot.begin(), p);
+
+        ++i; progressBar->setValue(i);
     }
 
     for (plist::const_iterator p = plot.begin(); p!=plot.end(); ++p) {
