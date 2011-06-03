@@ -46,7 +46,7 @@ class Plotter
 public:
     Plotter();
 
-    void setFunc(tree * f) { // temp
+    void setFunc(tree * f) {
         func = f;
     }
 
@@ -71,14 +71,17 @@ public:
         gridX = x; gridY = y;
     }
 
-    void doPlot(QPainter * painter);
+    void doPlot();
 
     QPen gridPen, coordPen, funcPen;
+    QColor backgroundColor;
+
+    QImage imgPlot;
 
 protected:
     void insert_points(const plist::iterator & a, const plist::iterator & b, int k );
     void calculate_factors();
-    void drawGrid(QPainter *painter);
+    void drawGrid();
 
 private:
     void plotBegin();

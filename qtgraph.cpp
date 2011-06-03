@@ -18,6 +18,7 @@ QtGraph::QtGraph(QWidget *parent) :
     plotter.coordPen = QPen(QBrush(Qt::black), 2);
     plotter.gridPen  = QPen(QBrush(Qt::lightGray), 0);
     plotter.funcPen  = QPen(QBrush(Qt::blue), 1.5, Qt::SolidLine, Qt::SquareCap, Qt::RoundJoin);
+    plotter.backgroundColor = Qt::white;
 
     //Set up color pickers
     ui->cpPlot->setColor(Qt::blue);
@@ -55,20 +56,10 @@ void QtGraph::dbgMsgHandler(QtMsgType type, const char *msg)
     }
  }
 
-void QtGraph::myPopulateScene(QGraphicsScene * scene, Plotter *plotter, double width, double height) {
-    scene->clear();
-    scene->setSceneRect(0, 0, width, height);
-
-    imgPlot = QImage(width, height, QImage::Format_RGB32);
-    imgPlot.fill(ui->cpBackground->color().rgb());
-
-    QPainter painter;
-    painter.begin(&imgPlot);
-    painter.setRenderHint(QPainter::Antialiasing);
-    plotter->doPlot(&painter);
-    painter.end();
-
-    scene->addPixmap(QPixmap::fromImage(imgPlot));
+void QtGraph::myPopulateScene() {
+    scene.clear();
+    scene.setSceneRect(0, 0, plotter.imgPlot.width(), plotter.imgPlot.height());
+    scene.addPixmap(QPixmap::fromImage(plotter.imgPlot));
 }
 
 void QtGraph::on_pbBuild_clicked()
@@ -76,29 +67,29 @@ void QtGraph::on_pbBuild_clicked()
     ui->teLog->clear();
 
     QString func = ui->edFunc->text();
-    tree *t;
 
     try {
         if (!ui->limitsX->isValid()) throw QString("Bad X boundaries");
         if (ui->limitsY->isChecked() && !ui->limitsY->isValid()) throw QString("Bad Y boundaries");
 
-        t = build_parse_tree(func);
+        tree *t = build_parse_tree(func);
         plotter.setFunc(t);
         plotter.setSize(ui->graphView->width(), ui->graphView->height());
         plotter.setXRange(ui->limitsX->limitFrom(), ui->limitsX->limitTo());
-
+        plotter.setAutoYRange();
         if (ui->limitsY->isChecked())
             plotter.setYRange(ui->limitsY->limitFrom(), ui->limitsY->limitTo());
-        else
-            plotter.setAutoYRange();
 
         plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
 
         plotter.gridPen.setColor(ui->cpGrid->color());
         plotter.coordPen.setColor(ui->cpAxes->color());
         plotter.funcPen.setColor(ui->cpPlot->color());
+        plotter.backgroundColor = ui->cpBackground->color();
 
-        myPopulateScene(&scene, &plotter, ui->graphView->width(), ui->graphView->height());
+        plotter.doPlot();
+
+        myPopulateScene();
 
         destroy_tree(t);
     } catch (QString e) {
@@ -112,6 +103,6 @@ void QtGraph::on_pbSave_clicked()
                        tr("JPEG (*.jpeg, *.jpg);;PNG (*.png);;BMP (*.bmp);;All Files (*)"));
 
     if (!fileName.isEmpty())
-        if (!imgPlot.save(fileName))
+        if (!plotter.imgPlot.save(fileName))
             QMessageBox::warning(this, "Error", "Can`t save file \"" + fileName +"\"");
 }

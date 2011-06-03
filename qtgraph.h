@@ -16,7 +16,7 @@ public:
     QtGraph(QWidget *parent = 0);
     ~QtGraph();
     void dbgMsgHandler(QtMsgType type, const char *msg);
-    void myPopulateScene(QGraphicsScene * scene, Plotter * plotter, double width, double height);
+    void myPopulateScene();
 
 protected:
     void changeEvent(QEvent *e);
@@ -24,7 +24,6 @@ protected:
 private:
     Ui::QtGraph *ui;
     QGraphicsScene scene;
-    QImage imgPlot;
 
     Plotter plotter;
 

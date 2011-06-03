@@ -88,7 +88,7 @@ void Plotter::calculate_factors()
     bottom = -(fromY * ky);
 }
 
-void Plotter::drawGrid(QPainter *painter) {
+void Plotter::drawGrid() {
     //draw grid
     painter->setPen(gridPen);
     const double stepx = kx * gridX;
@@ -164,7 +164,7 @@ void Plotter::plotEnd() {
     part.clear();
 }
 
-void Plotter::doPlot(QPainter *painter)
+void Plotter::doPlot()
 {
     // measure the time for plotting
     QTime timer;
@@ -175,11 +175,17 @@ void Plotter::doPlot(QPainter *painter)
     plot.clear();
     pointsK = 0;
 
-    // setup painter
-    this->painter = painter;
-    painter->save();
+    // setup image and painter
+    imgPlot = QImage(width, height, QImage::Format_RGB32);
+    imgPlot.fill(backgroundColor.rgb());
+
+    QPainter mypainter;
+    painter = &mypainter;
+    painter->begin(&imgPlot);
+    painter->setRenderHint(QPainter::Antialiasing);
     painter->translate(-left, -top);
-    drawGrid(painter);
+
+    drawGrid();
 
     // setup plot drawing
     plotBegin();
@@ -211,8 +217,7 @@ void Plotter::doPlot(QPainter *painter)
     // end of plotting
     plotEnd();
 
-    // restore painter old state
-    painter->restore();
+    painter->end();
 
     qDebug("Totaly added %d points", pointsK);
     qDebug("Time: %d ms", timer.elapsed());
