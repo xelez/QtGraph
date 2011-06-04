@@ -61,12 +61,15 @@ void bnf_funcs_init() {
     bnf_funcs["abs"]    = bnf_abs;
     bnf_funcs["sin"]    = bnf_sin;
     bnf_funcs["cos"]    = bnf_cos;
+    bnf_funcs["tan"]    = bnf_tg;
     bnf_funcs["tg"]     = bnf_tg;
+    bnf_funcs["ctan"]   = bnf_ctg;
     bnf_funcs["ctg"]    = bnf_ctg;
     bnf_funcs["floor"]  = bnf_floor;
     bnf_funcs["sqrt"]   = bnf_sqrt;
     bnf_funcs["arcsin"] = bnf_arcsin;
     bnf_funcs["arccos"] = bnf_arccos;
+    bnf_funcs["arctan"] = bnf_arctg;
     bnf_funcs["arctg"]  = bnf_arctg;
     bnf_funcs["boobs"]  = bnf_boobs;
 }
