@@ -145,6 +145,26 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="cbFindZeros">
+           <property name="text">
+            <string>Искать нули у функции.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbFindZeros">
+           <property name="text">
+            <string>Результаты отображаются на вкладке Log.</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::PlainText</enum>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>

@@ -71,6 +71,7 @@ void QtGraph::setPlotterSettings(tree *func) {
         plotter.setYRange(ui->limitsY->limitFrom(), ui->limitsY->limitTo());
 
     plotter.setGrid(ui->sbGridX->value(), ui->sbGridY->value());
+    plotter.setFindZeros(ui->cbFindZeros->isChecked());
 
     //colors
     plotter.gridPen.setColor(ui->cpGrid->color());
