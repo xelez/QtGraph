@@ -9,6 +9,8 @@
 
 #include "bnf.h"
 
+#define isnan(v) ((v)!=(v))
+
 const double EPS_DV = 1e-8; // for derivative
 
 /*
