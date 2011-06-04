@@ -9,6 +9,7 @@ Plotter::Plotter()
     fromX = toX = 10;
     fromY = toY = 0;
     autoYRange = true;
+    findZeros = false;
 
     gridX = gridY = 1;
 }
@@ -165,6 +166,22 @@ void Plotter::plotEnd() {
     part.clear();
 }
 
+
+void Plotter::zerosPoint(const PlotP &p) {
+    if (isnan(p.y)) {
+        prevP = p;
+        return;
+    }
+
+    if (fabs(p.y)<EPS) {
+        qDebug("{%.6lf} - zero", p.x);
+    }
+    else if (!isnan(prevP.y) && (prevP.y*p.y < 0) ) {
+        qDebug("[%.6lf, %.6lf] - one or more zeros ", prevP.x, p.x);
+    }
+    prevP = p;
+}
+
 void Plotter::doPlot()
 {
     // measure the time for plotting
@@ -174,6 +191,7 @@ void Plotter::doPlot()
     // setup settings and clear old stuff
     needAbort = false;
     calculate_factors();
+    prevP = PlotP();
     plot.clear();
     pointsK = 0;
 
@@ -217,6 +235,7 @@ void Plotter::doPlot()
         insert_points(prev, p, MAX_INSERT_K);
         for (plist::const_iterator t = plot.begin(); t!=p; ++t) {
             plotPoint(*t);
+            if (findZeros) zerosPoint(*t);
         }
         plot.erase(plot.begin(), p);
 

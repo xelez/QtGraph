@@ -28,6 +28,8 @@ double derivative(tree *expr, double x);
 struct PlotP {
     double x, y, dv;
 
+    PlotP() { x = y = dv = NaN; }
+
     PlotP(double _x, double _y, double _dv) {
         x=_x; y=_y; dv=_dv;
     }
@@ -54,6 +56,7 @@ public:
     void setAutoYRange() { autoYRange = true; }
     void setGrid(double x, double y) { gridX = x; gridY = y; }
     void setProgressBar(QProgressBar *bar) { progressBar = bar; }
+    void setFindZeros(bool b) { findZeros = b; }
 
     void doPlot();
     void abort() { needAbort=true; }
@@ -73,6 +76,8 @@ private:
     void plotPoint(const PlotP & p);
     void plotEnd();
 
+    void zerosPoint(const PlotP & p);
+
     QProgressBar *progressBar;
     tree * func;
     double width, height;
@@ -88,6 +93,10 @@ private:
     bool needAbort;
     plist plot;
     int pointsK;
+
+    //For finding zeros
+    bool findZeros;
+    PlotP prevP;
 
     //for plotBegin, plotPoint, plotEnd
     bool breakp;
