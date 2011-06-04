@@ -1,3 +1,19 @@
 QtGraph is graph builder (or plotter) project based on Qt toolkit.
 
-For know it can plot a lot of functions in good quality in 0-5 seconds.
+For know it can plot many functions in good quality quite fast (0-20 seconds).
+
+Supported functions:
+    abs, sin, cos, tan or tg, ctan or ctg, floor, sqrt, arcsin, arccos, arctan or arctg
+    And one other just for fun :)
+
+Supported constants:
+    pi
+
+How-to build:
+    Just use QtCreator from Qt SDK     
+    
+    On Linux (Debian/Ubuntu):
+    $sudo aptitude install qt-sdk
+
+    On Windows:
+    download from http://qt.nokia.com/downloads
