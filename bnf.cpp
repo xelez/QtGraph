@@ -32,8 +32,9 @@ QString pop_lexem(QString & str) {
  *
  * <expr1> ::= <expr1> + <expr2> | <expr1> - <expr2> | <expr2>
  * <expr2> ::= <expr2> * <expr3> | <expr2> / <expr3> | <expr3>
- * <expr3> ::= <expr4> ^ <expr3> | <expr4>
- * <expr4> ::= x | <const> | <number> | -<expr4> | +<expr4> | <func_name>(<expr1>) | (<expr1>)
+ * <expr3> ::= +<expr3> | -<expr3> | <expr4>
+ * <expr4> ::= <expr5> ^ <expr4> | <expr5>
+ * <expr5> ::= x | <const> | <number> | <func_name>(<expr1>) | (<expr1>)
  */
 
 void error(QString s) throw(QString) {
@@ -48,6 +49,7 @@ tree* parse1(QString & str);
 tree* parse2(QString & str);
 tree* parse3(QString & str);
 tree* parse4(QString & str);
+tree* parse5(QString & str);
 
 tree* parse1(QString & str) {
     tree *t;
@@ -86,8 +88,19 @@ tree* parse2(QString & str) {
 }
 
 tree* parse3(QString & str) {
+    QString lex = peek_lexem(str);
+
+    if (lex=="-" || lex=="+") {
+        pop_lexem(str);
+        return new tree(lex[0], parse4(str), NULL);
+    }
+
+    return parse4(str);
+}
+
+tree* parse4(QString & str) {
     tree *t;
-    t = parse4(str);
+    t = parse5(str);
 
     QString op = peek_lexem(str);
     if (op==")" || op.isEmpty()) return t;
@@ -95,16 +108,13 @@ tree* parse3(QString & str) {
     if (op!="^") errorUnexpected(op);
     pop_lexem(str);
 
-    tree *r = parse3(str);
+    tree *r = parse4(str);
     return new tree(op[0], t, r);
 }
 
-tree* parse4(QString & str) {
-    QString lex = pop_lexem(str);
 
-    if (lex=="-" || lex=="+") {
-        return new tree(lex[0], parse4(str), NULL);
-    }
+tree* parse5(QString & str) {
+    QString lex = pop_lexem(str);
 
     if (lex=="x") {
         return new tree(QChar('x'));
